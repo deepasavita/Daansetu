@@ -13,3 +13,17 @@ class UserForm (UserCreationForm):
         'last_name': forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Enter Last Name'}),
         'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
         'email':forms. EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email ID'}),
+
+from django import forms
+from .models import Donor  # Adjust the import as needed for your project
+
+class DonorSignupForm(forms.ModelForm):
+    userpic = forms.ImageField(widget=forms.FileInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = Donor
+        fields = ['contact', 'userpic', 'address']
+        widgets = {
+            'contact': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Contact Number'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Full Address'}),
+        }

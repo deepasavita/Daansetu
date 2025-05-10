@@ -1,4 +1,6 @@
 from django.shortcuts import redirect, render
+from django.views import view
+from .forms import UserForm,DonorSignupForm
 
 # Create your views here.
 def index(request):
@@ -21,7 +23,12 @@ def login_volunteer(request):
     return render(request, "login-volunteer.html")
 
 
-def signup_donor(request):
+def signup_donor(view):
+    def get(self,request):
+        form1 = UserForm()
+        form2 = DonorSignupForm()
+        return render(request,"signup_donor.html",locals())
+    def post(self,request):
     return render(request, "signup_donor.html")
 
 
