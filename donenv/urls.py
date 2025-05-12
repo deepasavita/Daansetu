@@ -28,7 +28,7 @@ urlpatterns = [
     path("login-admin/", views.login_admin, name="login_admin"),
     path("login-donor/", views.login_donor, name="login_donor"),
     path("login-volunteer/", views.login_volunteer, name="login_volunteer"),
-    path("signup-donor/", views.signup_donor, name="signup_donor"),
+    path("signup-donor/", views.signup_donor.as_view(), name="signup_donor"),
     path("signup-volunteer/", views.signup_volunteer, name="signup_volunteer"),
     path("index-admin/", views.index_admin, name="index_admin"),
     # admin dashboard
