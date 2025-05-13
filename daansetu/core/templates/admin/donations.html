@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Donations{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">Manage Donations</h1>
+            <p class="lead">View and manage all donations in the system.</p>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'assign_volunteer' %}" class="btn btn-primary">
+                <i class="bi bi-person-check me-2"></i>Assign Volunteer
+            </a>
+        </div>
+    </div>
+    
+    <!-- Donation Tabs -->
+    <ul class="nav nav-tabs mb-4" id="donationTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="items-tab" data-bs-toggle="tab" data-bs-target="#items-content" 
+                    type="button" role="tab" aria-controls="items-content" aria-selected="true">
+                Item Donations
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="money-tab" data-bs-toggle="tab" data-bs-target="#money-content" 
+                    type="button" role="tab" aria-controls="money-content" aria-selected="false">
+                Money Donations
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="donationTabsContent">
+        <!-- Item Donations Tab -->
+        <div class="tab-pane fade show active" id="items-content" role="tabpanel" aria-labelledby="items-tab">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">Item Donations</h5>
+                        </div>
+                        <div class="col-auto">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-secondary filter-btn active" data-filter="all">All</button>
+                                <button type="button" class="btn btn-sm btn-outline-warning filter-btn" data-filter="pending">Pending</button>
+                                <button type="button" class="btn btn-sm btn-outline-info filter-btn" data-filter="assigned">Assigned</button>
+                                <button type="button" class="btn btn-sm btn-outline-success filter-btn" data-filter="delivered">Delivered</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if item_donations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="itemDonationsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Item Name</th>
+                                        <th>Qty</th>
+                                        <th>Condition</th>
+                                        <th>Description</th>
+                                        <th>Donor</th>
+                                        <th>Pickup Address</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Volunteer</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in item_donations %}
+                                        <tr data-status="{{ item.status }}">
+                                            <td>{{ item.item_name }}</td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>
+                                                {% if item.condition == 'new' %}
+                                                    <span class="badge bg-success">New</span>
+                                                {% elif item.condition == 'like_new' %}
+                                                    <span class="badge bg-info">Like New</span>
+                                                {% elif item.condition == 'good' %}
+                                                    <span class="badge bg-primary">Good</span>
+                                                {% elif item.condition == 'fair' %}
+                                                    <span class="badge bg-warning">Fair</span>
+                                                {% elif item.condition == 'poor' %}
+                                                    <span class="badge bg-secondary">Poor</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-truncate" style="max-width: 150px;">{{ item.description }}</td>
+                                            <td>{{ item.donor.username }}</td>
+                                            <td class="text-truncate" style="max-width: 150px;">{{ item.pickup_address|default:"Not provided" }}</td>
+                                            <td>{{ item.created_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                {% if item.status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elif item.status == 'assigned' %}
+                                                    <span class="badge bg-info">Assigned</span>
+                                                {% else %}
+                                                    <span class="badge bg-success">Delivered</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% with assignments=item.assignments.all %}
+                                                    {% if assignments %}
+                                                        {{ assignments.0.volunteer.username }}
+                                                    {% elif item.status == 'pending' %}
+                                                        <a href="{% url 'assign_volunteer' %}?item_id={{ item.id }}" class="btn btn-sm btn-outline-primary">
+                                                            Assign
+                                                        </a>
+                                                    {% else %}
+                                                        —
+                                                    {% endif %}
+                                                {% endwith %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="mb-0">No item donations available.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Money Donations Tab -->
+        <div class="tab-pane fade" id="money-content" role="tabpanel" aria-labelledby="money-tab">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">Money Donations</h5>
+                        </div>
+                        <div class="col-auto">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">Sort by</span>
+                                <select class="form-select form-select-sm" id="moneySortSelect">
+                                    <option value="date-desc">Date (Newest)</option>
+                                    <option value="date-asc">Date (Oldest)</option>
+                                    <option value="amount-desc">Amount (Highest)</option>
+                                    <option value="amount-asc">Amount (Lowest)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if money_donations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="moneyDonationsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Amount</th>
+                                        <th>Donor</th>
+                                        <th>Date</th>
+                                        <th>Transaction ID</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for donation in money_donations %}
+                                        <tr>
+                                            <td class="money-amount">₹{{ donation.amount }}</td>
+                                            <td>{{ donation.donor.username }}</td>
+                                            <td class="donation-date">{{ donation.date|date:"M d, Y H:i" }}</td>
+                                            <td>#{{ donation.id }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="mb-0">No money donations available.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Donation Summary -->
+    <div class="row mt-4">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Donation Summary</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="itemStatusChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Top Donors</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Donor</th>
+                                <th>Items</th>
+                                <th>Money</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for donor in donors|slice:":5" %}
+                                <tr>
+                                    <td>{{ donor.username }}</td>
+                                    <td>{{ donor.item_donations.count }}</td>
+                                    <td>
+                                        {% with total_amount=donor.money_donations.all|dictsortreversed:"amount"|first %}
+                                            {% if total_amount %}
+                                                ₹{{ total_amount.amount }}
+                                            {% else %}
+                                                ₹0
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Item donations filtering
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const itemRows = document.querySelectorAll('#itemDonationsTable tbody tr');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Update active button
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                
+                // Filter rows
+                itemRows.forEach(row => {
+                    if (filter === 'all' || row.dataset.status === filter) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // Money donations sorting
+        const sortSelect = document.getElementById('moneySortSelect');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', function() {
+                const table = document.getElementById('moneyDonationsTable');
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                
+                rows.sort((a, b) => {
+                    const sortValue = this.value;
+                    
+                    if (sortValue.startsWith('date')) {
+                        const dateA = new Date(a.querySelector('.donation-date').textContent);
+                        const dateB = new Date(b.querySelector('.donation-date').textContent);
+                        
+                        return sortValue === 'date-asc' ? dateA - dateB : dateB - dateA;
+                    } else {
+                        // Amount sorting
+                        const amountA = parseFloat(a.querySelector('.money-amount').textContent.replace('₹', ''));
+                        const amountB = parseFloat(b.querySelector('.money-amount').textContent.replace('₹', ''));
+                        
+                        return sortValue === 'amount-asc' ? amountA - amountB : amountB - amountA;
+                    }
+                });
+                
+                // Clear and re-append sorted rows
+                while (tbody.firstChild) {
+                    tbody.removeChild(tbody.firstChild);
+                }
+                
+                rows.forEach(row => tbody.appendChild(row));
+            });
+        }
+        
+        // Item Status Chart
+        const pendingCount = {{ item_donations|dictsort:"status"|dictsortreversed:"created_at"|length }};
+        const assignedCount = {{ item_donations|dictsort:"status"|dictsortreversed:"created_at"|length }};
+        const deliveredCount = {{ item_donations|dictsort:"status"|dictsortreversed:"created_at"|length }};
+        
+        const ctx = document.getElementById('itemStatusChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Pending', 'Assigned', 'Delivered'],
+                datasets: [{
+                    label: 'Item Donations by Status',
+                    data: [
+                        {{ item_donations|dictsort:"status"|dictsortreversed:"created_at"|length }},
+                        {{ item_donations|dictsort:"status"|dictsortreversed:"created_at"|length }},
+                        {{ item_donations|dictsort:"status"|dictsortreversed:"created_at"|length }}
+                    ],
+                    backgroundColor: [
+                        '#ffc107',  // Warning - Pending
+                        '#0dcaf0',  // Info - Assigned
+                        '#198754',  // Success - Delivered
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

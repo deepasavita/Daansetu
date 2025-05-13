@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Donation History{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">Your Donation History</h1>
+            <p class="lead">Thank you for your generous contributions! Here's a record of all your donations.</p>
+        </div>
+    </div>
+    
+    <!-- Tabs for Item and Money Donations -->
+    <ul class="nav nav-tabs mb-4" id="donationTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="items-tab" data-bs-toggle="tab" data-bs-target="#items-content" 
+                    type="button" role="tab" aria-controls="items-content" aria-selected="true">
+                Item Donations
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="money-tab" data-bs-toggle="tab" data-bs-target="#money-content" 
+                    type="button" role="tab" aria-controls="money-content" aria-selected="false">
+                Money Donations
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="donationTabsContent">
+        <!-- Item Donations Tab -->
+        <div class="tab-pane fade show active" id="items-content" role="tabpanel" aria-labelledby="items-tab">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">Item Donations</h5>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{% url 'donate_item' %}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i>New Donation
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if item_donations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Item Name</th>
+                                        <th>Quantity</th>
+                                        <th>Condition</th>
+                                        <th>Description</th>
+                                        <th>Pickup Address</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in item_donations %}
+                                        <tr>
+                                            <td>{{ item.item_name }}</td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>
+                                                {% if item.condition == 'new' %}
+                                                    <span class="badge bg-success">New</span>
+                                                {% elif item.condition == 'like_new' %}
+                                                    <span class="badge bg-info">Like New</span>
+                                                {% elif item.condition == 'good' %}
+                                                    <span class="badge bg-primary">Good</span>
+                                                {% elif item.condition == 'fair' %}
+                                                    <span class="badge bg-warning">Fair</span>
+                                                {% elif item.condition == 'poor' %}
+                                                    <span class="badge bg-secondary">Poor</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-truncate" style="max-width: 150px;">{{ item.description }}</td>
+                                            <td class="text-truncate" style="max-width: 150px;">{{ item.pickup_address|default:"Not provided" }}</td>
+                                            <td>{{ item.created_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                {% if item.status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elif item.status == 'assigned' %}
+                                                    <span class="badge bg-info">Assigned</span>
+                                                {% else %}
+                                                    <span class="badge bg-success">Delivered</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox text-muted" style="font-size: 2rem;"></i>
+                            <p class="mt-2">You haven't made any item donations yet.</p>
+                            <a href="{% url 'donate_item' %}" class="btn btn-primary">Donate an Item</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Money Donations Tab -->
+        <div class="tab-pane fade" id="money-content" role="tabpanel" aria-labelledby="money-tab">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">Money Donations</h5>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{% url 'donate_money' %}" class="btn btn-sm btn-success">
+                                <i class="bi bi-plus-circle me-1"></i>New Donation
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if money_donations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Transaction ID</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for donation in money_donations %}
+                                        <tr>
+                                            <td>₹{{ donation.amount }}</td>
+                                            <td>{{ donation.date|date:"M d, Y H:i" }}</td>
+                                            <td>#{{ donation.id }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-cash text-muted" style="font-size: 2rem;"></i>
+                            <p class="mt-2">You haven't made any money donations yet.</p>
+                            <a href="{% url 'donate_money' %}" class="btn btn-success">Donate Money</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

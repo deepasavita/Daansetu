@@ -1,0 +1,205 @@
+/* DaanSetu - Custom CSS Styles */
+
+/* General Styles */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+.footer {
+    flex-shrink: 0;
+}
+
+/* Navbar customization */
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Card styling */
+.card {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.card-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.075);
+}
+
+/* Stat cards on dashboard */
+.card .bi {
+    opacity: 0.85;
+}
+
+/* Table styling */
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.table th {
+    font-weight: 600;
+}
+
+/* Donation status badges */
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+}
+
+/* Form styling */
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Custom button styling */
+.btn-primary {
+    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.25);
+}
+
+.btn-success {
+    box-shadow: 0 2px 4px rgba(25, 135, 84, 0.25);
+}
+
+.btn-outline-primary:hover, .btn-outline-success:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Hero section on homepage */
+.hero-section {
+    padding: 4rem 0;
+    background-color: #f8f9fa;
+}
+
+/* How it works section */
+.how-it-works .rounded-circle {
+    width: 80px;
+    height: 80px;
+    transition: transform 0.3s;
+}
+
+.how-it-works .card:hover .rounded-circle {
+    transform: scale(1.1);
+}
+
+/* Donor dashboard */
+.quick-actions .btn {
+    transition: all 0.3s;
+}
+
+.quick-actions .btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Admin dashboard */
+#donationChart {
+    max-height: 250px;
+}
+
+/* Login/Register forms */
+.auth-form-wrapper {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Custom animation for alerts */
+.alert {
+    animation: fadeInDown 0.5s;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Custom styling for filter buttons in admin pages */
+.filter-btn.active {
+    font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .card-title {
+        font-size: 1.25rem;
+    }
+    
+    .display-4 {
+        font-size: 2.5rem;
+    }
+    
+    .table-responsive {
+        border-radius: 0.5rem;
+    }
+}
+
+/* Volunteer dashboard styling */
+.task-item {
+    border-left: 4px solid transparent;
+}
+
+.task-item.pending {
+    border-left-color: #ffc107;
+}
+
+.task-item.in-progress {
+    border-left-color: #0dcaf0;
+}
+
+.task-item.completed {
+    border-left-color: #198754;
+}
+
+/* Profile picture styling */
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom tooltip styling */
+.custom-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.custom-tooltip .tooltip-text {
+    visibility: hidden;
+    width: 120px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.custom-tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}

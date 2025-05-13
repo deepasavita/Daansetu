@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Users{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">Manage Users</h1>
+            <p class="lead">View and manage all users in the system.</p>
+        </div>
+    </div>
+    
+    <!-- User Tabs -->
+    <ul class="nav nav-tabs mb-4" id="userTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="donors-tab" data-bs-toggle="tab" data-bs-target="#donors-content" 
+                    type="button" role="tab" aria-controls="donors-content" aria-selected="true">
+                Donors ({{ donors|length }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="volunteers-tab" data-bs-toggle="tab" data-bs-target="#volunteers-content" 
+                    type="button" role="tab" aria-controls="volunteers-content" aria-selected="false">
+                Volunteers ({{ volunteers|length }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="admins-tab" data-bs-toggle="tab" data-bs-target="#admins-content" 
+                    type="button" role="tab" aria-controls="admins-content" aria-selected="false">
+                Admins ({{ admins|length }})
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="userTabsContent">
+        <!-- Donors Tab -->
+        <div class="tab-pane fade show active" id="donors-content" role="tabpanel" aria-labelledby="donors-tab">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    {% if donors %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Date Joined</th>
+                                        <th>Items Donated</th>
+                                        <th>Money Donated</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for donor in donors %}
+                                        <tr>
+                                            <td>{{ donor.username }}</td>
+                                            <td>{{ donor.email }}</td>
+                                            <td>{{ donor.phone|default:"Not provided" }}</td>
+                                            <td>{{ donor.date_joined|date:"M d, Y" }}</td>
+                                            <td>{{ donor.item_donations.count }}</td>
+                                            <td>
+                                                {% with money=donor.money_donations.all %}
+                                                    {% if money %}
+                                                        ₹{{ money.0.amount }}
+                                                    {% else %}
+                                                        ₹0
+                                                    {% endif %}
+                                                {% endwith %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="mb-0">No donors registered yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Volunteers Tab -->
+        <div class="tab-pane fade" id="volunteers-content" role="tabpanel" aria-labelledby="volunteers-tab">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    {% if volunteers %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Date Joined</th>
+                                        <th>Tasks Assigned</th>
+                                        <th>Tasks Completed</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for volunteer in volunteers %}
+                                        <tr>
+                                            <td>{{ volunteer.username }}</td>
+                                            <td>{{ volunteer.email }}</td>
+                                            <td>{{ volunteer.phone|default:"Not provided" }}</td>
+                                            <td>{{ volunteer.date_joined|date:"M d, Y" }}</td>
+                                            <td>{{ volunteer.assignments.count }}</td>
+                                            <td>{{ volunteer.assignments.completed.count|default:"0" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="mb-0">No volunteers registered yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Admins Tab -->
+        <div class="tab-pane fade" id="admins-content" role="tabpanel" aria-labelledby="admins-tab">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    {% if admins %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Date Joined</th>
+                                        <th>Last Login</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for admin in admins %}
+                                        <tr>
+                                            <td>{{ admin.username }}</td>
+                                            <td>{{ admin.email }}</td>
+                                            <td>{{ admin.phone|default:"Not provided" }}</td>
+                                            <td>{{ admin.date_joined|date:"M d, Y" }}</td>
+                                            <td>{{ admin.last_login|date:"M d, Y H:i"|default:"Never" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="mb-0">No additional admins registered.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

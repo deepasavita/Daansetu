@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">Admin Dashboard</h1>
+            <p class="lead">Welcome, {{ user.username }}! Monitor and manage the entire donation system.</p>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'assign_volunteer' %}" class="btn btn-primary">
+                <i class="bi bi-person-check me-2"></i>Assign Volunteer
+            </a>
+        </div>
+    </div>
+    
+    <!-- Stats Row 1 - Users -->
+    <div class="row mb-4">
+        <div class="col-12 mb-3">
+            <h4>User Statistics</h4>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-people text-primary" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-3">{{ total_users }}</h3>
+                    <p class="card-text">Total Users</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-heart text-danger" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-3">{{ donor_count }}</h3>
+                    <p class="card-text">Donors</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-badge text-info" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-3">{{ volunteer_count }}</h3>
+                    <p class="card-text">Volunteers</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-lock text-secondary" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-3">{{ admin_count }}</h3>
+                    <p class="card-text">Admins</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Row 2 - Donations -->
+    <div class="row mb-4">
+        <div class="col-12 mb-3">
+            <h4>Donation Statistics</h4>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-gift text-primary" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-3">{{ item_count }}</h3>
+                    <p class="card-text">Total Items</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-hourglass-split text-warning" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-3">{{ pending_donations }}</h3>
+                    <p class="card-text">Pending</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-arrow-repeat text-info" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-3">{{ assigned_donations }}</h3>
+                    <p class="card-text">Assigned</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle text-success" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-3">{{ delivered_donations }}</h3>
+                    <p class="card-text">Delivered</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Donation Chart -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Donation Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="donationChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Money Donated</h5>
+                </div>
+                <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                    <div class="display-4 mb-3 text-success">₹{{ money_sum }}</div>
+                    <p class="text-muted">Total amount donated</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-12 mb-3">
+            <h4>Recent Activity</h4>
+        </div>
+        
+        <!-- Recent Item Donations -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Recent Item Donations</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_items %}
+                        <div class="list-group list-group-flush">
+                            {% for item in recent_items %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ item.item_name }}</h6>
+                                        <small>{{ item.created_at|date:"M d, Y" }}</small>
+                                    </div>
+                                    <p class="mb-1 text-truncate">By {{ item.donor.username }}</p>
+                                    <small class="text-muted">
+                                        Status: 
+                                        {% if item.status == 'pending' %}
+                                            <span class="badge bg-warning">Pending</span>
+                                        {% elif item.status == 'assigned' %}
+                                            <span class="badge bg-info">Assigned</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Delivered</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-center py-3">No recent item donations.</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white">
+                    <a href="{% url 'admin_donations' %}" class="btn btn-sm btn-outline-primary d-block">View All</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Money Donations -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Recent Money Donations</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_money %}
+                        <div class="list-group list-group-flush">
+                            {% for donation in recent_money %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">₹{{ donation.amount }}</h6>
+                                        <small>{{ donation.date|date:"M d, Y" }}</small>
+                                    </div>
+                                    <p class="mb-1">By {{ donation.donor.username }}</p>
+                                    <small class="text-muted">Transaction ID: #{{ donation.id }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-center py-3">No recent money donations.</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white">
+                    <a href="{% url 'admin_donations' %}" class="btn btn-sm btn-outline-primary d-block">View All</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Assignments -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Recent Assignments</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_assignments %}
+                        <div class="list-group list-group-flush">
+                            {% for assignment in recent_assignments %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ assignment.item.item_name }}</h6>
+                                        <small>{{ assignment.assigned_at|date:"M d, Y" }}</small>
+                                    </div>
+                                    <p class="mb-1">Volunteer: {{ assignment.volunteer.username }}</p>
+                                    <small class="text-muted">
+                                        Status: 
+                                        {% if assignment.status == 'pending' %}
+                                            <span class="badge bg-warning">Pending</span>
+                                        {% elif assignment.status == 'in_progress' %}
+                                            <span class="badge bg-info">In Progress</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Completed</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-center py-3">No recent assignments.</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white">
+                    <a href="{% url 'assign_volunteer' %}" class="btn btn-sm btn-outline-primary d-block">Assign Volunteer</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Donation Status Chart
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('donationChart').getContext('2d');
+        const donationChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'Assigned', 'Delivered'],
+                datasets: [{
+                    label: 'Donation Status',
+                    data: [{{ pending_donations }}, {{ assigned_donations }}, {{ delivered_donations }}],
+                    backgroundColor: [
+                        '#ffc107',  // Warning - Pending
+                        '#0dcaf0',  // Info - Assigned
+                        '#198754',  // Success - Delivered
+                    ],
+                    borderColor: [
+                        '#fff',
+                        '#fff',
+                        '#fff',
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                cutout: '60%',
+            },
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

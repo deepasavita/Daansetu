@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+
+{% block title %}My Tasks{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">My Tasks</h1>
+            <p class="lead">Manage and track all your assigned donation tasks.</p>
+        </div>
+    </div>
+    
+    <!-- Tasks Tabs -->
+    <ul class="nav nav-tabs mb-4" id="tasksTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-content" 
+                    type="button" role="tab" aria-controls="all-content" aria-selected="true">
+                All Tasks
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-content" 
+                    type="button" role="tab" aria-controls="pending-content" aria-selected="false">
+                Pending
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="in-progress-tab" data-bs-toggle="tab" data-bs-target="#in-progress-content" 
+                    type="button" role="tab" aria-controls="in-progress-content" aria-selected="false">
+                In Progress
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed-content" 
+                    type="button" role="tab" aria-controls="completed-content" aria-selected="false">
+                Completed
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="tasksTabsContent">
+        <!-- All Tasks Tab -->
+        <div class="tab-pane fade show active" id="all-content" role="tabpanel" aria-labelledby="all-tab">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    {% if assigned_tasks %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Qty</th>
+                                        <th>Condition</th>
+                                        <th>Description</th>
+                                        <th>Donor</th>
+                                        <th>Pickup Address</th>
+                                        <th>Status</th>
+                                        <th>Assigned Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for task in assigned_tasks %}
+                                        <tr>
+                                            <td>{{ task.item.item_name }}</td>
+                                            <td>{{ task.item.quantity }}</td>
+                                            <td>
+                                                {% if task.item.condition == 'new' %}
+                                                    <span class="badge bg-success">New</span>
+                                                {% elif task.item.condition == 'like_new' %}
+                                                    <span class="badge bg-info">Like New</span>
+                                                {% elif task.item.condition == 'good' %}
+                                                    <span class="badge bg-primary">Good</span>
+                                                {% elif task.item.condition == 'fair' %}
+                                                    <span class="badge bg-warning">Fair</span>
+                                                {% elif task.item.condition == 'poor' %}
+                                                    <span class="badge bg-secondary">Poor</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-truncate" style="max-width: 150px;">{{ task.item.description }}</td>
+                                            <td>{{ task.item.donor.username }}</td>
+                                            <td class="text-truncate" style="max-width: 150px;">{{ task.item.pickup_address|default:"Not provided" }}</td>
+                                            <td>
+                                                {% if task.status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elif task.status == 'in_progress' %}
+                                                    <span class="badge bg-info">In Progress</span>
+                                                {% else %}
+                                                    <span class="badge bg-success">Completed</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ task.assigned_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                {% if task.status == 'in_progress' %}
+                                                    <a href="{% url 'complete_task' task.id %}" class="btn btn-sm btn-success">
+                                                        Mark Complete
+                                                    </a>
+                                                {% elif task.status == 'completed' %}
+                                                    <span class="text-success"><i class="bi bi-check-circle-fill"></i> Done</span>
+                                                {% else %}
+                                                    <span class="text-muted">No action</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox text-muted" style="font-size: 2rem;"></i>
+                            <p class="mt-2">You don't have any assigned tasks yet.</p>
+                            <a href="{% url 'volunteer_dashboard' %}" class="btn btn-primary">Find Available Donations</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pending Tasks Tab -->
+        <div class="tab-pane fade" id="pending-content" role="tabpanel" aria-labelledby="pending-tab">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    {% with pending_tasks=assigned_tasks|dictsortreversed:"assigned_at"|dictsort:"status" %}
+                        {% if pending_tasks %}
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Qty</th>
+                                            <th>Condition</th>
+                                            <th>Description</th>
+                                            <th>Donor</th>
+                                            <th>Pickup Address</th>
+                                            <th>Assigned Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for task in pending_tasks %}
+                                            {% if task.status == 'pending' %}
+                                                <tr>
+                                                    <td>{{ task.item.item_name }}</td>
+                                                    <td>{{ task.item.quantity }}</td>
+                                                    <td>
+                                                        {% if task.item.condition == 'new' %}
+                                                            <span class="badge bg-success">New</span>
+                                                        {% elif task.item.condition == 'like_new' %}
+                                                            <span class="badge bg-info">Like New</span>
+                                                        {% elif task.item.condition == 'good' %}
+                                                            <span class="badge bg-primary">Good</span>
+                                                        {% elif task.item.condition == 'fair' %}
+                                                            <span class="badge bg-warning">Fair</span>
+                                                        {% elif task.item.condition == 'poor' %}
+                                                            <span class="badge bg-secondary">Poor</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-truncate" style="max-width: 150px;">{{ task.item.description }}</td>
+                                                    <td>{{ task.item.donor.username }}</td>
+                                                    <td class="text-truncate" style="max-width: 150px;">{{ task.item.pickup_address|default:"Not provided" }}</td>
+                                                    <td>{{ task.assigned_at|date:"M d, Y" }}</td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <p class="mb-0">No pending tasks.</p>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- In Progress Tasks Tab -->
+        <div class="tab-pane fade" id="in-progress-content" role="tabpanel" aria-labelledby="in-progress-tab">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    {% with in_progress_tasks=assigned_tasks|dictsortreversed:"assigned_at" %}
+                        {% if in_progress_tasks %}
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Qty</th>
+                                            <th>Condition</th>
+                                            <th>Description</th>
+                                            <th>Donor</th>
+                                            <th>Pickup Address</th>
+                                            <th>Assigned Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for task in in_progress_tasks %}
+                                            {% if task.status == 'in_progress' %}
+                                                <tr>
+                                                    <td>{{ task.item.item_name }}</td>
+                                                    <td>{{ task.item.quantity }}</td>
+                                                    <td>
+                                                        {% if task.item.condition == 'new' %}
+                                                            <span class="badge bg-success">New</span>
+                                                        {% elif task.item.condition == 'like_new' %}
+                                                            <span class="badge bg-info">Like New</span>
+                                                        {% elif task.item.condition == 'good' %}
+                                                            <span class="badge bg-primary">Good</span>
+                                                        {% elif task.item.condition == 'fair' %}
+                                                            <span class="badge bg-warning">Fair</span>
+                                                        {% elif task.item.condition == 'poor' %}
+                                                            <span class="badge bg-secondary">Poor</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-truncate" style="max-width: 150px;">{{ task.item.description }}</td>
+                                                    <td>{{ task.item.donor.username }}</td>
+                                                    <td class="text-truncate" style="max-width: 150px;">{{ task.item.pickup_address|default:"Not provided" }}</td>
+                                                    <td>{{ task.assigned_at|date:"M d, Y" }}</td>
+                                                    <td>
+                                                        <a href="{% url 'complete_task' task.id %}" class="btn btn-sm btn-success">
+                                                            Mark Complete
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <p class="mb-0">No tasks in progress.</p>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Completed Tasks Tab -->
+        <div class="tab-pane fade" id="completed-content" role="tabpanel" aria-labelledby="completed-tab">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    {% with completed_tasks=assigned_tasks|dictsortreversed:"completed_at" %}
+                        {% if completed_tasks %}
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Qty</th>
+                                            <th>Condition</th>
+                                            <th>Description</th>
+                                            <th>Donor</th>
+                                            <th>Pickup Address</th>
+                                            <th>Assigned Date</th>
+                                            <th>Completed Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for task in completed_tasks %}
+                                            {% if task.status == 'completed' %}
+                                                <tr>
+                                                    <td>{{ task.item.item_name }}</td>
+                                                    <td>{{ task.item.quantity }}</td>
+                                                    <td>
+                                                        {% if task.item.condition == 'new' %}
+                                                            <span class="badge bg-success">New</span>
+                                                        {% elif task.item.condition == 'like_new' %}
+                                                            <span class="badge bg-info">Like New</span>
+                                                        {% elif task.item.condition == 'good' %}
+                                                            <span class="badge bg-primary">Good</span>
+                                                        {% elif task.item.condition == 'fair' %}
+                                                            <span class="badge bg-warning">Fair</span>
+                                                        {% elif task.item.condition == 'poor' %}
+                                                            <span class="badge bg-secondary">Poor</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-truncate" style="max-width: 150px;">{{ task.item.description }}</td>
+                                                    <td>{{ task.item.donor.username }}</td>
+                                                    <td class="text-truncate" style="max-width: 150px;">{{ task.item.pickup_address|default:"Not provided" }}</td>
+                                                    <td>{{ task.assigned_at|date:"M d, Y" }}</td>
+                                                    <td>{{ task.completed_at|date:"M d, Y" }}</td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <p class="mb-0">No completed tasks yet.</p>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Donate Money{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Donate Money</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead mb-4">Your financial contribution helps us support those in need. Thank you for your generosity.</p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <p>There were some errors with your form submission:</p>
+                                {{ form.errors }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.amount.id_for_label }}" class="form-label">Amount (₹)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                {{ form.amount }}
+                            </div>
+                            <div class="form-text">Enter the amount you would like to donate.</div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Submit Donation</button>
+                            <a href="{% url 'donor_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">How Your Donation Helps</h5>
+                </div>
+                <div class="card-body">
+                    <p>Your financial contributions help us:</p>
+                    <ul>
+                        <li>Support operations and logistics for item distribution</li>
+                        <li>Purchase essential supplies for communities in need</li>
+                        <li>Maintain our platform to connect donors and volunteers</li>
+                        <li>Expand our reach to serve more people in need</li>
+                    </ul>
+                    <p class="mt-3 mb-0">100% of your donation goes directly to supporting our mission.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

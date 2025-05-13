@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Volunteer Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">Volunteer Dashboard</h1>
+            <p class="lead">Welcome, {{ user.username }}! Thank you for your service to the community.</p>
+        </div>
+    </div>
+    
+    <!-- Task Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3 mb-md-0">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-hourglass-split text-warning" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-3">{{ pending_count }}</h3>
+                    <p class="card-text">Pending Tasks</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3 mb-md-0">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-arrow-repeat text-info" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-3">{{ in_progress_count }}</h3>
+                    <p class="card-text">In Progress</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle text-success" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-3">{{ completed_count }}</h3>
+                    <p class="card-text">Completed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Unassigned Donations -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Available Donations</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if unassigned_donations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Item Name</th>
+                                        <th>Qty</th>
+                                        <th>Condition</th>
+                                        <th>Description</th>
+                                        <th>Donor</th>
+                                        <th>Pickup Address</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for donation in unassigned_donations %}
+                                        <tr>
+                                            <td>{{ donation.item_name }}</td>
+                                            <td>{{ donation.quantity }}</td>
+                                            <td>
+                                                {% if donation.condition == 'new' %}
+                                                    <span class="badge bg-success">New</span>
+                                                {% elif donation.condition == 'like_new' %}
+                                                    <span class="badge bg-info">Like New</span>
+                                                {% elif donation.condition == 'good' %}
+                                                    <span class="badge bg-primary">Good</span>
+                                                {% elif donation.condition == 'fair' %}
+                                                    <span class="badge bg-warning">Fair</span>
+                                                {% elif donation.condition == 'poor' %}
+                                                    <span class="badge bg-secondary">Poor</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-truncate" style="max-width: 150px;">{{ donation.description }}</td>
+                                            <td>{{ donation.donor.username }}</td>
+                                            <td class="text-truncate" style="max-width: 150px;">{{ donation.pickup_address|default:"Not provided" }}</td>
+                                            <td>{{ donation.created_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                <a href="{% url 'accept_donation' donation.id %}" class="btn btn-sm btn-success">
+                                                    Accept
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="mb-0">No unassigned donations available at the moment.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Your Tasks -->
+    <div class="row">
+        <div class="col">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">Your Tasks</h5>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{% url 'volunteer_tasks' %}" class="btn btn-sm btn-light">
+                                View All Tasks
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if assigned_tasks %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Status</th>
+                                        <th>Assigned Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for task in assigned_tasks|slice:":5" %}
+                                        <tr>
+                                            <td>{{ task.item.item_name }}</td>
+                                            <td>
+                                                {% if task.status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elif task.status == 'in_progress' %}
+                                                    <span class="badge bg-info">In Progress</span>
+                                                {% else %}
+                                                    <span class="badge bg-success">Completed</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ task.assigned_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                {% if task.status == 'in_progress' %}
+                                                    <a href="{% url 'complete_task' task.id %}" class="btn btn-sm btn-success">
+                                                        Mark Complete
+                                                    </a>
+                                                {% elif task.status == 'completed' %}
+                                                    <span class="text-success"><i class="bi bi-check-circle-fill"></i> Done</span>
+                                                {% else %}
+                                                    <span class="text-muted">No action</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="mb-0">You don't have any assigned tasks yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

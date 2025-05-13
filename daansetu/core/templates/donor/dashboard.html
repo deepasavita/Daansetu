@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Donor Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-4">Donor Dashboard</h1>
+            <p class="lead">Welcome, {{ user.username }}! Manage your donations and view your impact.</p>
+        </div>
+    </div>
+    
+    <!-- Donation Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-gift text-primary" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-3">{{ item_count }}</h3>
+                    <p class="card-text">Items Donated</p>
+                    <a href="{% url 'donate_item' %}" class="btn btn-outline-primary mt-2">Donate Item</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-currency-rupee text-success" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-3">₹{{ money_sum }}</h3>
+                    <p class="card-text">Money Donated</p>
+                    <a href="{% url 'donate_money' %}" class="btn btn-outline-success mt-2">Donate Money</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Links -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <a href="{% url 'donate_item' %}" class="btn btn-outline-primary d-block">
+                                <i class="bi bi-box-seam me-2"></i>Donate Item
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <a href="{% url 'donate_money' %}" class="btn btn-outline-success d-block">
+                                <i class="bi bi-cash-coin me-2"></i>Donate Money
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{% url 'donation_history' %}" class="btn btn-outline-secondary d-block">
+                                <i class="bi bi-clock-history me-2"></i>View History
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Donations -->
+    <div class="row">
+        <!-- Recent Item Donations -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Item Donations</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_items %}
+                        <div class="list-group">
+                            {% for item in recent_items %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ item.item_name }} (Qty: {{ item.quantity }})</h6>
+                                        <small>{{ item.created_at|date:"M d, Y" }}</small>
+                                    </div>
+                                    <p class="mb-1 text-truncate">{{ item.description }}</p>
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">
+                                            Status: 
+                                            {% if item.status == 'pending' %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% elif item.status == 'assigned' %}
+                                                <span class="badge bg-info">Assigned</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Delivered</span>
+                                            {% endif %}
+                                        </small>
+                                        <small class="text-muted">
+                                            Condition:
+                                            {% if item.condition == 'new' %}
+                                                <span class="badge bg-success">New</span>
+                                            {% elif item.condition == 'like_new' %}
+                                                <span class="badge bg-info">Like New</span>
+                                            {% elif item.condition == 'good' %}
+                                                <span class="badge bg-primary">Good</span>
+                                            {% elif item.condition == 'fair' %}
+                                                <span class="badge bg-warning">Fair</span>
+                                            {% elif item.condition == 'poor' %}
+                                                <span class="badge bg-secondary">Poor</span>
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-center">No item donations yet.</p>
+                    {% endif %}
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'donation_history' %}" class="btn btn-sm btn-outline-secondary">View All</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Money Donations -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Money Donations</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_money %}
+                        <div class="list-group">
+                            {% for donation in recent_money %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">₹{{ donation.amount }}</h6>
+                                        <small>{{ donation.date|date:"M d, Y" }}</small>
+                                    </div>
+                                    <small class="text-muted">Transaction ID: {{ donation.id }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-center">No money donations yet.</p>
+                    {% endif %}
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'donation_history' %}" class="btn btn-sm btn-outline-secondary">View All</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

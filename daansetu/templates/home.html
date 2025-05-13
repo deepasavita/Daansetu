@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="text-center py-4">
+        <h1 class="display-5">Welcome to Daansetu</h1>
+        <p class="lead">A platform connecting donors, volunteers, and NGOs to make a difference in people's lives.</p>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="row mt-3 mb-5">
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-gift text-primary" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-2">{{ item_count|default:"2" }}</h3>
+                    <p class="card-text">Items Donated</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-currency-rupee text-success" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-2">₹{{ money_sum|default:"10000.00" }}</h3>
+                    <p class="card-text">Money Donated</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-people text-info" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-2">{{ volunteer_count|default:"1" }}</h3>
+                    <p class="card-text">Volunteers</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-heart text-danger" style="font-size: 2.5rem;"></i>
+                    <h3 class="card-title mt-2">{{ donor_count|default:"2" }}</h3>
+                    <p class="card-text">Donors</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="mt-5 mb-5">
+        <div class="text-center mb-4">
+            <h2>How It Works</h2>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
+                            <i class="bi bi-box-seam" style="font-size: 1.8rem;"></i>
+                        </div>
+                        <h4>Donate Items</h4>
+                        <p>Donate clothes, books, toys, electronics, and more. Your unused items can help someone in need.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
+                            <i class="bi bi-truck" style="font-size: 1.8rem;"></i>
+                        </div>
+                        <h4>Volunteers Deliver</h4>
+                        <p>Our volunteers collect your donations and deliver them to NGOs and people who need them.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
+                            <i class="bi bi-heart" style="font-size: 1.8rem;"></i>
+                        </div>
+                        <h4>Make a Difference</h4>
+                        <p>Your contributions help improve lives, support communities, and create a better world.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- What You Can Donate Section -->
+<div class="mt-5 mb-5">
+    <div class="text-center mb-4">
+        <h2>What You Can Donate</h2>
+        <p>We accept a wide range of items to help those in need</p>
+    </div>
+
+    <div class="row text-center">
+        <div class="col-md-2 col-4 mb-4">
+            <i class="bi bi-basket-fill" style="font-size: 2rem; color: #0d6efd;"></i>
+            <p class="mt-2">Food (grains, pulses, snacks)</p>
+        </div>
+        <div class="col-md-2 col-4 mb-4">
+            <i class="bi bi-person-fill" style="font-size: 2rem; color: #0d6efd;"></i>
+            <p class="mt-2">Clothes (shirts, sarees, sweaters)</p>
+        </div>
+        <div class="col-md-2 col-4 mb-4">
+            <i class="bi bi-shield-shaded" style="font-size: 2rem; color: #0d6efd;"></i>
+            <p class="mt-2">Shoes and socks</p>
+        </div>
+        <div class="col-md-2 col-4 mb-4">
+            <i class="bi bi-lamp" style="font-size: 2rem; color: #0d6efd;"></i>
+            <p class="mt-2">Beds, mattresses, bedsheets</p>
+        </div>
+        <div class="col-md-2 col-4 mb-4">
+            <i class="bi bi-laptop" style="font-size: 2rem; color: #0d6efd;"></i>
+            <p class="mt-2">Electronics (mobiles, laptops)</p>
+        </div>
+        <div class="col-md-2 col-4 mb-4">
+            <i class="bi bi-book" style="font-size: 2rem; color: #0d6efd;"></i>
+            <p class="mt-2">Books and stationery</p>
+        </div>
+    </div>
+    <div class="text-center mt-3">
+            <a href="{% url 'donate_item' %}" class="btn btn-primary">Donate Now</a>
+        </div>
+    </div>
+
+</div>
+        
+    <!-- Call to Action -->
+    <div class="bg-primary text-white p-5 mb-5 rounded text-center">
+        <h2>Ready to Make a Difference?</h2>
+        <p class="lead">Join our community of donors and volunteers today.</p>
+        <a href="{% url 'register' %}" class="btn btn-light mt-3">Donate Now</a>
+    </div>
+</div>
+{% endblock %}
